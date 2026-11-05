@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Added maximum-scale and user-scalable=no to permanently fix touch-target misalignment on iOS -->
+  <!-- Prevents tap misalignments and unwanted zooming -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#f3f6fa">
@@ -13,99 +13,74 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
+    /* 1. We MUST allow vertical scrolling for native pull-to-refresh to work */
+    html {
       width: 100%;
       height: 100%;
+      overflow-y: scroll;
+      overscroll-behavior-y: auto; /* Enables native drag-to-reload on Android/iOS */
+    }
+
+    body {
+      width: 100%;
+      min-height: 100.1%; /* Subtle extra height to let the browser trigger overscroll */
       margin: 0;
       padding: 0;
       background: #f3f6fa;
-      overflow: hidden;
-      position: fixed; /* Prevents viewport shift/misaligned clicks on iOS */
+      display: flex;
+      flex-direction: column;
     }
 
+    /* 2. The Pull Bar: This catches your finger swipe at the top of the screen */
+    .pull-sensor {
+      width: 100%;
+      height: 28px;
+      padding-top: env(safe-area-inset-top, 0px);
+      background: #f3f6fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      touch-action: pan-down; /* Encourages downward pull */
+    }
+
+    /* Subtle indicator pill so the user intuitively knows to drag here */
+    .pull-pill {
+      width: 36px;
+      height: 4px;
+      background-color: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    /* 3. The iFrame takes the remaining height of the screen */
     #portal-frame {
       display: block;
       width: 100%;
-      height: 100%;
+      flex-grow: 1;
+      height: calc(100vh - 28px);
+      height: calc(100dvh - 28px);
       border: 0;
       margin: 0;
       padding: 0;
       background: #f3f6fa;
     }
-
-    /* Floating reload button */
-    .reload-btn {
-      position: fixed;
-      top: calc(env(safe-area-inset-top, 12px) + 8px);
-      right: calc(env(safe-area-inset-right, 12px) + 8px);
-      z-index: 9999;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      outline: none;
-      transition: transform 0.15s ease, background-color 0.15s ease;
-    }
-
-    .reload-btn:active {
-      transform: scale(0.92);
-      background: rgba(235, 238, 242, 0.95);
-    }
-
-    .reload-btn svg {
-      width: 18px;
-      height: 18px;
-      stroke: #444;
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .reload-btn.spinning svg {
-      transform: rotate(360deg);
-    }
   </style>
 </head>
 <body>
 
-  <!-- Floating Refresh Button -->
-  <button class="reload-btn" id="reloadBtn" title="Refresh Page" aria-label="Refresh Page">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-    </svg>
-  </button>
+  <!-- Touch starts here: Triggers native Android/iOS pull-to-refresh -->
+  <div class="pull-sensor">
+    <div class="pull-pill"></div>
+  </div>
 
   <iframe
     id="portal-frame"
-    src="https://script.google.com/macros/s/AKfycbwXiK7Cww_vn9X2ATzTpc9wGl6W3aOjjAMXQ1fJLhdj7XAGOgC5UyAm6WBvqAqsXJyV/exec"
+    src="PASTE_YOUR_PUBLIC_APPS_SCRIPT_EXEC_URL_HERE"
     title="Guest Departure Information"
     loading="eager"
     referrerpolicy="strict-origin-when-cross-origin">
   </iframe>
 
-  <script>
-    const reloadBtn = document.getElementById('reloadBtn');
-    const iframe = document.getElementById('portal-frame');
-
-    reloadBtn.addEventListener('click', () => {
-      // Add spin animation
-      reloadBtn.classList.add('spinning');
-      
-      // Reload iframe directly without losing parent page context
-      const currentSrc = iframe.src;
-      iframe.src = '';
-      iframe.src = currentSrc;
-
-      setTimeout(() => {
-        reloadBtn.classList.remove('spinning');
-      }, 600);
-    });
-  </script>
 </body>
 </html>
