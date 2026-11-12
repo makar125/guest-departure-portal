@@ -1,86 +1,284 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <!-- Prevents tap misalignments and unwanted zooming -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#f3f6fa">
-  <title>Guest Departure Information</title>
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* 1. We MUST allow vertical scrolling for native pull-to-refresh to work */
-    html {
-      width: 100%;
-      height: 100%;
-      overflow-y: scroll;
-      overscroll-behavior-y: auto; /* Enables native drag-to-reload on Android/iOS */
-    }
-
-    body {
-      width: 100%;
-      min-height: 100.1%; /* Subtle extra height to let the browser trigger overscroll */
-      margin: 0;
-      padding: 0;
-      background: #f3f6fa;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* 2. The Pull Bar: This catches your finger swipe at the top of the screen */
-    .pull-sensor {
-      width: 100%;
-      height: 28px;
-      padding-top: env(safe-area-inset-top, 0px);
-      background: #f3f6fa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      user-select: none;
-      touch-action: pan-down; /* Encourages downward pull */
-    }
-
-    /* Subtle indicator pill so the user intuitively knows to drag here */
-    .pull-pill {
-      width: 36px;
-      height: 4px;
-      background-color: #cbd5e1;
-      border-radius: 999px;
-    }
-
-    /* 3. The iFrame takes the remaining height of the screen */
-    #portal-frame {
-      display: block;
-      width: 100%;
-      flex-grow: 1;
-      height: calc(100vh - 28px);
-      height: calc(100dvh - 28px);
-      border: 0;
-      margin: 0;
-      padding: 0;
-      background: #f3f6fa;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Touch starts here: Triggers native Android/iOS pull-to-refresh -->
-  <div class="pull-sensor">
-    <div class="pull-pill"></div>
+<html lang="en"><head><base target="_top"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guest Departure Information</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#25324a;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}
+header{background:#2e3a59;color:white;padding:26px 15px;text-align:center}header h1{font-size:1.5rem;margin:0 0 5px}header p{color:#d9e3f0;margin:0}
+main{max-width:700px;margin:22px auto;padding:0 14px 36px}.panel{background:white;border-radius:14px;padding:23px;margin-bottom:16px;box-shadow:0 3px 18px #24304812}
+h2{font-size:1.17rem;margin:0 0 16px}label{font-weight:600;font-size:.92rem;display:block;margin:13px 0 7px}
+input,textarea,select{width:100%;font:inherit;border:1px solid #b5bfd0;border-radius:8px;padding:12px;background:white;color:#25324a}textarea{min-height:90px;resize:vertical}
+button{width:100%;margin-top:16px;border:0;border-radius:9px;padding:13px 18px;background:#2e3a59;color:white;font:inherit;font-weight:650;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.secondary{background:#eef2fa;color:#2e3a59;border:1px solid #d6deea}.muted{color:#647188;font-size:.9rem}.notice{background:#eef3fc;border-left:4px solid #2e3a59;border-radius:5px;padding:12px;margin:15px 0}.warning{background:#fff5e6;border-left:4px solid #b66b14;padding:12px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.item span{display:block;color:#647188;font-size:.82rem;margin-bottom:5px}.item strong{overflow-wrap:anywhere}.highlight{background:#edf3fc;border-radius:11px;padding:16px;margin-bottom:18px}.highlight strong{font-size:2rem;display:block}.hide{display:none!important}.link{color:#2e3a59;font-weight:600}footer{text-align:center;color:#758298;font-size:.8rem;margin:20px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{margin-top:6px}
+.details-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px;margin-bottom:12px}.details-heading h2{margin:0 0 3px}.detail-subtitle{margin:0}.details-brand{flex:0 0 auto;max-width:156px;min-width:0;display:flex;align-items:center;justify-content:center}.details-brand img{display:block;max-width:148px;max-height:72px;width:auto;height:auto;object-fit:contain}.brand-fallback{font-weight:700;color:#2e3a59;text-align:right;font-size:.9rem;overflow-wrap:anywhere}.flight-route{margin-top:20px;padding:13px 16px;background:#f6f8fc;border:1px solid #e6ebf3;border-radius:10px}.route-label{font-size:.77rem;color:#647188;letter-spacing:.06em;font-weight:650}.route-codes{display:flex;align-items:center;gap:14px;margin-top:5px;font-size:1.25rem;color:#25324a}.route-arrow{color:#647188;font-weight:400}.details-brand:has(img.hide):has(.brand-fallback.hide){display:none}
+.flight-panel{margin:20px 0 18px;padding:17px 17px 16px;border:1px solid #e2e8f2;border-radius:12px;background:#f6f8fc}
+.flight-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}
+.flight-heading-title{font-size:.78rem;letter-spacing:.07em;font-weight:750;color:#52647d}
+.flight-airports{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.airport-block{min-width:0;flex:1}
+.airport-block:last-child{text-align:right}
+.airport-caption{display:block;color:#647188;font-size:.76rem;margin-bottom:4px}
+.airport-code{display:block;font-weight:750;font-size:1.65rem;letter-spacing:.02em;line-height:1.2}
+.flight-line{flex:0 1 100px;display:flex;align-items:center;justify-content:center;gap:7px;color:#647188}
+.flight-line:before,.flight-line:after{content:'';height:1px;background:#c5d0e0;flex:1}
+.flight-single-airport{margin-bottom:13px}
+.flight-single-airport .airport-code{font-size:1.45rem}
+.flight-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border-top:1px solid #e1e7f0;padding-top:13px}
+.flight-facts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.flight-fact span{display:block;color:#647188;font-size:.78rem;margin-bottom:5px}
+.flight-fact strong{display:block;font-size:1.03rem;overflow-wrap:anywhere}
+@media(max-width:450px){.panel{padding:18px}.grid{gap:12px}.highlight strong{font-size:1.7rem}.actions{grid-template-columns:1fr}.details-heading{gap:10px}.details-brand{max-width:112px}.details-brand img{max-width:108px;max-height:56px}.detail-subtitle{font-size:.78rem}.flight-panel{padding:14px}.flight-airports{gap:7px}.airport-code{font-size:1.4rem}.flight-facts{gap:8px}.flight-fact strong{font-size:.96rem}}
+.contact-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:17px 0 20px}
+.contact-links a{position:relative;min-width:0;min-height:100px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px;border:1px solid #dfe6f0;border-radius:16px;background:#f8faff;color:#2e3a59;text-decoration:none;box-shadow:0 3px 10px rgba(37,50,74,.045);transition:border-color .18s,background .18s,box-shadow .18s,transform .18s}
+.contact-links a:hover{background:#fff;border-color:#b3c5e2;box-shadow:0 9px 24px rgba(37,50,74,.1);transform:translateY(-2px)}
+.contact-links a:active{transform:translateY(0)}
+.contact-links a:focus-visible{outline:3px solid #7388b6;outline-offset:3px}
+.contact-links .contact-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:#e7edf9;color:#2e3a59;flex:0 0 40px}
+.contact-links .contact-icon svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.contact-links .contact-label{font-size:.99rem;font-weight:750;letter-spacing:-.01em;line-height:1.25}
+.contact-links #whatsappLink .contact-icon{background:#e7f6ee;color:#187a51}
+.contact-links #whatsappLink:hover{border-color:#a5dcc0;background:#f6fffa}
+.contact-links #emailLink .contact-icon{background:#e8f0ff;color:#3269aa}
+@media(max-width:480px){.contact-links{gap:8px}.contact-links a{min-height:94px;padding:11px 9px;align-items:center;text-align:center;gap:9px;border-radius:13px}.contact-links .contact-icon{width:37px;height:37px;flex-basis:37px;border-radius:10px}.contact-links .contact-label{font-size:.86rem}}
+@media(prefers-reduced-motion:reduce){.contact-links a{transition:none}.contact-links a:hover{transform:none}}
+.form-heading{font-size:1rem;margin:19px 0 5px}.assist-note{margin-top:10px}.cancel-policy{font-size:.87rem;color:#647188;margin-top:10px}.inline-action{margin-top:10px}.quiet-actions{display:flex;gap:8px;flex-wrap:wrap}.quiet-actions button{flex:1 1 160px}
+header{position:relative;padding-top:49px}.language-control{position:absolute;right:15px;top:9px;display:flex;align-items:center;gap:8px}.language-control label{color:#d9e3f0;margin:0;font-size:.78rem}.language-control select{width:auto;max-width:160px;padding:5px 8px;background:#fff;color:#25324a;font-size:.85rem;border-radius:7px}.contact-links svg{display:inline-block;vertical-align:middle;margin-right:6px}@media(max-width:450px){header{padding-top:51px}.language-control{right:10px}}
+</style></head><body>
+<header><div class="language-control"><label for="languageSelect">Language</label><select id="languageSelect" aria-label="Language"><option value="en">🇬🇧 English</option><option value="lt">🇱🇹 Lietuvių</option><option value="lv">🇱🇻 Latviešu</option><option value="et">🇪🇪 Eesti</option><option value="ro">🇷🇴 Română</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select></div><h1 data-i18n="title">Departure Information</h1><p data-i18n="subtitle">Your hotel pickup and airport transfer details</p></header>
+<main>
+<section class="panel"><h2 data-i18n="findTitle">Find my departure</h2><form id="lookup" onsubmit="return false;">
+<label for="booking" data-i18n="booking">Booking ID or Voucher No</label><input id="booking" maxlength="60" autocomplete="off" required placeholder="Enter either reference" data-i18n-placeholder="bookingPlaceholder">
+<label for="surname" data-i18n="surname">Lead guest last name</label><input id="surname" maxlength="90" autocomplete="family-name" required placeholder="Surname only" data-i18n-placeholder="surnamePlaceholder">
+<button id="find" type="submit" data-i18n="find">Find My Departure</button></form><p id="feedback" role="status" aria-live="polite"></p></section>
+<section class="panel hide" id="details"><div class="details-heading"><div><h2 data-i18n="details">Your departure details</h2><p class="muted detail-subtitle" data-i18n="detailsSub">Your hotel pickup and flight information</p></div><div class="details-brand"><img id="customerLogo" alt="Customer logo" class="hide" onerror="this.classList.add('hide');byId('brandName').classList.toggle('hide',!byId('brandName').textContent)"><span id="brandName" class="brand-fallback hide"></span></div></div>
+<div class="highlight"><span data-i18n="pickup">Hotel pickup</span><strong id="dPickup"></strong><span id="dDate"></span></div>
+<div class="grid">
+<div class="item"><span data-i18n="hotel">Hotel</span><strong id="dHotel"></strong></div>
+<div class="item"><span data-i18n="point">Pickup point</span><strong id="dPoint"></strong><div id="mapWrap" class="hide"><a id="mapLink" class="link" target="_blank" rel="noopener noreferrer" data-i18n="map">View pickup point map</a></div></div>
+ <div class="item"><span data-i18n="guest">Lead guest</span><strong id="dName"></strong></div>
+<div class="item"><span>Booking ID</span><strong id="dBooking"></strong></div>
+<div class="item"><span data-i18n="passengers">Passengers</span><strong id="dPax"></strong><div class="muted" id="dBreakdown"></div></div>
+</div>
+<section class="flight-panel" aria-label="Flight details">
+  <div class="flight-heading"><span class="flight-heading-title" data-i18n="flightDetails">FLIGHT DETAILS</span><span aria-hidden="true">✈</span></div>
+  <div id="flightBothAirports" class="flight-airports hide">
+    <div class="airport-block"><span class="airport-caption" data-i18n="from">From</span><strong class="airport-code" id="flightFrom"></strong></div>
+    <div class="flight-line" aria-hidden="true">✈</div>
+    <div class="airport-block"><span class="airport-caption" data-i18n="to">To</span><strong class="airport-code" id="flightTo"></strong></div>
   </div>
+  <div id="flightOneAirport" class="flight-single-airport hide"><span class="airport-caption" id="flightOneAirportLabel"></span><strong class="airport-code" id="flightOneAirportCode"></strong></div>
+  <div id="flightFacts" class="flight-facts">
+    <div class="flight-fact"><span data-i18n="flightNo">Flight number</span><strong id="dFlight"></strong></div>
+    <div class="flight-fact"><span data-i18n="departureTime">Departure time</span><strong id="dFlightTime"></strong></div>
+    <div class="flight-fact hide" id="flightDateWrap"><span data-i18n="flightDate">Flight date</span><strong id="dFlightDate"></strong></div>
+  </div>
+</section>
+<div class="notice"><strong data-i18n="early">Please be at your pickup point 10 minutes early.</strong> <span data-i18n="midnight">For flights shortly after midnight, your flight may depart the day after hotel pickup. Check the flight date on your travel documents.</span></div>
+<div class="muted" data-i18n="flightNotice">Flight date should be checked against your travel documents. Transfer details are subject to approved operational updates.</div>
+</section>
+<section class="panel"><button type="button" id="helpToggle" class="secondary" data-i18n="helpToggle">Need assistance or can't find your departure?</button>
+<div id="helpBlock" class="hide"><h2 style="margin-top:20px" data-i18n="contact">Contact Guest Services</h2>
+<p class="muted" data-i18n="urgent">For urgent changes, please call. Online requests are reviewed by staff and do not automatically change or cancel transfers.</p>
+<div id="contactLinks" class="contact-links hide" aria-label="Guest Services contact options">
+<a id="phoneLink" class="hide" href="#"><span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.7L7.2 10a16 16 0 0 0 6.8 6.8l1.6-1.8a2 2 0 0 1 1.7-.6l3 .5a2 2 0 0 1 1.7 2z"/></svg></span><span class="contact-label" data-i18n="call">Call</span></a>
+<a id="emailLink" class="hide" href="#"><span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 6 9 7 9-7"/></svg></span><span class="contact-label" data-i18n="emailBtn">Email</span></a>
+<a id="whatsappLink" class="hide" href="#" target="_blank" rel="noopener noreferrer"><span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.8 7.4L3 20.5l1.5-4.7a8.5 8.5 0 1 1 16-4.1Z"/><path d="M9 8.4c.5 3 2.7 5.2 5.8 6l1.3-1.2 2 1.2c-.7 2.3-2.2 2.3-4.2 1.5-2.9-1.2-5.4-3.8-6.3-6.5-.3-1.2.3-2.4 1.4-3z"/></svg></span><span class="contact-label">WhatsApp</span></a>
+</div>
+<p id="cancelAdvice" class="cancel-policy hide" data-i18n="cancelAdvice">Please request cancellation by 18:00 Greece time on the day before hotel pickup. Late requests may still be reviewed. Sending a request does not automatically cancel your transfer.</p>
+<form id="help" onsubmit="return false;"><h3 class="form-heading" data-i18n="sendTitle">Send a request</h3><label for="type" data-i18n="requestType">Request type</label><select id="type"><option value="Lookup Assistance" data-i18n="lookupAssistance">Lookup Assistance</option><option value="Departure Question" data-i18n="departureQuestion">Departure Question</option><option value="Confirmation" data-i18n="confirmation">Confirmation</option><option value="Cancellation Request" data-i18n="cancellation">Cancellation Request</option></select>
+<label for="helpName" data-i18n="guestName">Guest name</label><input id="helpName" maxlength="120" required>
+<label for="helpRef" data-i18n="booking">Booking ID or Voucher No</label><input id="helpRef" maxlength="60" required>
+<label for="email" data-i18n="emailLabel">Email (or provide a phone number)</label><input id="email" type="email" maxlength="150">
+<label for="phone" data-i18n="phoneLabel">Phone (or provide an email)</label><input id="phone" type="tel" maxlength="40">
+<label for="msg" data-i18n="message">Your message</label><textarea id="msg" maxlength="1000" placeholder="How can we help?" data-i18n-placeholder="messagePlaceholder"></textarea>
+<button type="submit" id="send" data-i18n="send">Send Request</button></form><p id="helpFeedback" role="status" aria-live="polite"></p></div></section>
+<footer data-i18n="footer">For urgent assistance, contact your travel representative.</footer></main>
 
-  <iframe
-    id="portal-frame"
-    src="https://script.google.com/macros/s/AKfycbw-U_rjT93ze8lbj-WrMzgVXeWqm8IQcbXNLNxLgJZG3EZ_8mZ6Ea8AST0JgCtYCpxc/exec"
-    title="Guest Departure Information"
-    loading="eager"
-    referrerpolicy="strict-origin-when-cross-origin">
-  </iframe>
+<script>
+// =========================================================================
+// INSERT YOUR APPS SCRIPT WEB APP URL HERE (Can be from @teztour.gr account!)
+// =========================================================================
+const API_URL = "https://script.google.com/macros/s/AKfycbw-U_rjT93ze8lbj-WrMzgVXeWqm8IQcbXNLNxLgJZG3EZ_8mZ6Ea8AST0JgCtYCpxc/exec";
 
-</body>
-</html>
+const I18N={"en":{"title":"Departure Information","subtitle":"Your hotel pickup and airport transfer details","findTitle":"Find my departure","booking":"Booking ID or Voucher No","surname":"Lead guest last name","find":"Find My Departure","details":"Your departure details","detailsSub":"Your hotel pickup and flight information","pickup":"Hotel pickup","hotel":"Hotel","point":"Pickup point","map":"View pickup point map","guest":"Lead guest","passengers":"Passengers","flightDetails":"FLIGHT DETAILS","from":"From","to":"To","flightNo":"Flight number","departureTime":"Departure time","flightDate":"Flight date","early":"Please be at your pickup point 10 minutes early.","midnight":"For flights shortly after midnight, your flight may depart the day after hotel pickup. Check the flight date on your travel documents.","flightNotice":"Flight date should be checked against your travel documents. Transfer details are subject to approved operational updates.","helpToggle":"Need assistance or can't find your departure?","contact":"Contact Guest Services","urgent":"For urgent changes, please call. Online requests are reviewed by staff and do not automatically change or cancel transfers.","call":"Call","emailBtn":"Email","cancelAdvice":"Please request cancellation by 18:00 Greece time on the day before hotel pickup. Late requests may still be reviewed. Sending a request does not automatically cancel your transfer.","sendTitle":"Send a request","requestType":"Request type","lookupAssistance":"Lookup Assistance","departureQuestion":"Departure Question","confirmation":"Confirmation","cancellation":"Cancellation Request","guestName":"Guest name","emailLabel":"Email (or provide a phone number)","phoneLabel":"Phone (or provide an email)","message":"Your message","send":"Send Request","footer":"For urgent assistance, contact your travel representative.","adults":"Adults","children":"Children","infants":"Infants","searching":"Searching…","found":"Departure found.","notFound":"No matching published departure is currently available. Check your Booking ID or Voucher No and surname, or select Help.","unavailable":"Service temporarily unavailable. Please try again or request assistance.","provideContact":"Please provide email or phone.","sending":"Sending…","sendError":"Could not submit request.","requestRecorded":"Your request has been recorded.","ref":"Reference:","urgentAssistance":"For urgent assistance, contact Guest Services.","confirmed":"Thank you. Your receipt acknowledgement has been recorded.","already":"Your request was already received recently.","bookingPlaceholder":"Enter either reference","surnamePlaceholder":"Surname only","messagePlaceholder":"How can we help?"},"lt":{"title":"Išvykimo informacija","subtitle":"Jūsų paėmimo iš viešbučio ir pervežimo informacija","findTitle":"Rasti išvykimo informaciją","booking":"Užsakymo numeris arba vaučerio numeris","surname":"Pagrindinio keleivio pavardė","find":"Rasti išvykimą","details":"Jūsų išvykimo informacija","detailsSub":"Informacija apie paėmimą ir skrydį","pickup":"Paėmimas iš viešbučio","hotel":"Viešbutis","point":"Paėmimo vieta","map":"Peržiūrėti paėmimo vietą žemėlapyje","guest":"Pagrindinis keleivis","passengers":"Keleiviai","flightDetails":"SKRYDŽIO INFORMACIJA","from":"Iš","to":"Į","flightNo":"Skrydžio numeris","departureTime":"Išvykimo laikas","flightDate":"Skrydžio data","early":"Atvykite į paėmimo vietą 10 minučių anksčiau.","midnight":"Jei skrydis vyksta netrukus po vidurnakčio, jo data gali būti kita diena nei paėmimo iš viešbučio. Patikrinkite kelionės dokumentus.","flightNotice":"Skrydžio datą patikrinkite kelionės dokumentuose. Pervežimo informacija gali būti atnaujinta.","helpToggle":"Reikia pagalbos arba nerandate išvykimo?","contact":"Susisiekti su svečių aptarnavimo tarnyba","urgent":"Dėl skubių pakeitimų skambinkite. Internetinės užklausos peržiūrimos darbuotojų ir automatiškai nekeičia bei neatšaukia pervežimų.","call":"Skambinti","emailBtn":"El. paštas","cancelAdvice":"Prašome pateikti atšaukimo prašymą iki 18:00 Graikijos laiku dieną prieš paėmimą. Vėlesni prašymai taip pat gali būti peržiūrėti. Prašymas automatiškai neatšaukia pervežimo.","sendTitle":"Siųsti užklausą","requestType":"Užklausos tipas","lookupAssistance":"Pagalba ieškant","departureQuestion":"Klausimas apie išvykimą","confirmation":"Patvirtinimas","cancellation":"Atšaukimo prašymas","guestName":"Svečio vardas ir pavardė","emailLabel":"El. paštas (arba telefono numeris)","phoneLabel":"Telefonas (arba el. paštas)","message":"Jūsų žinutė","send":"Siųsti užklausą","footer":"Dėl skubios pagalbos susisiekite su kelionės atstovu.","adults":"Suaugusieji","children":"Vaikai","infants":"Kūdikiai","searching":"Ieškoma…","found":"Išvykimas rastas.","notFound":"Išvykimo informacijos nerasta. Patikrinkite užsakymo numerį ir pavardę arba kreipkitės pagalbos.","unavailable":"Paslauga laikinai nepasiekiama. Bandykite vėliau arba kreipkitės pagalbos.","provideContact":"Nurodykite el. paštą arba telefoną.","sending":"Siunčiama…","sendError":"Nepavyko išsiųsti užklausos.","requestRecorded":"Jūsų užklausa užregistruota.","ref":"Nuoroda:","urgentAssistance":"Dėl skubios pagalbos susisiekite su svečių aptarnavimo tarnyba.","confirmed":"Ačiū. Jūsų patvirtinimas užregistruotas.","already":"Jūsų užklausa jau neseniai gauta.","bookingPlaceholder":"Įveskite vieną iš numerių","surnamePlaceholder":"Tik pavardė","messagePlaceholder":"Kaip galime padėti?"},"lv":{"title":"Izbraukšanas informācija","subtitle":"Informācija par transfēru no viesnīcas uz lidostu","findTitle":"Atrast izbraukšanas informāciju","booking":"Rezervācijas numurs vai vaučera numurs","surname":"Galvenā ceļotāja uzvārds","find":"Atrast izbraukšanu","details":"Jūsu izbraukšanas informācija","detailsSub":"Informācija par transfēru un lidojumu","pickup":"Paņemšana no viesnīcas","hotel":"Viesnīca","point":"Paņemšanas vieta","map":"Skatīt paņemšanas vietu kartē","guest":"Galvenais ceļotājs","passengers":"Pasažieri","flightDetails":"LIDOJUMA INFORMĀCIJA","from":"No","to":"Uz","flightNo":"Lidojuma numurs","departureTime":"Izlidošanas laiks","flightDate":"Lidojuma datums","early":"Lūdzu, ierodieties paņemšanas vietā 10 minūtes agrāk.","midnight":"Lidojumiem neilgi pēc pusnakts izlidošanas datums var būt nākamajā dienā pēc paņemšanas viesnīcā. Pārbaudiet ceļošanas dokumentus.","flightNotice":"Pārbaudiet lidojuma datumu ceļošanas dokumentos. Transfēra informācija var tikt atjaunināta.","helpToggle":"Vajadzīga palīdzība vai nevarat atrast izbraukšanu?","contact":"Sazināties ar viesu apkalpošanas dienestu","urgent":"Steidzamu izmaiņu gadījumā zvaniet. Tiešsaistes pieprasījumus izskata darbinieki; tie automātiski nemaina vai neatceļ transfērus.","call":"Zvanīt","emailBtn":"E-pasts","cancelAdvice":"Lūdzu, pieprasiet atcelšanu līdz plkst. 18.00 pēc Grieķijas laika dienu pirms transfēra. Vēlāki pieprasījumi arī var tikt izskatīti. Pieprasījums automātiski neatceļ transfēru.","sendTitle":"Nosūtīt pieprasījumu","requestType":"Pieprasījuma veids","lookupAssistance":"Palīdzība meklēšanā","departureQuestion":"Jautājums par izbraukšanu","confirmation":"Apstiprinājums","cancellation":"Atcelšanas pieprasījums","guestName":"Viesa vārds un uzvārds","emailLabel":"E-pasts (vai tālruņa numurs)","phoneLabel":"Tālrunis (vai e-pasts)","message":"Jūsu ziņojums","send":"Nosūtīt pieprasījumu","footer":"Steidzamai palīdzībai sazinieties ar ceļojuma pārstāvi.","adults":"Pieaugušie","children":"Bērni","infants":"Zīdaiņi","searching":"Meklē…","found":"Izbraukšana atrasta.","notFound":"Izbraukšanas informācija nav atrasta. Pārbaudiet rezervācijas numuru un uzvārdu vai lūdziet palīdzību.","unavailable":"Pakalpojums īslaicīgi nav pieejams. Mēģiniet vēlreiz vai lūdziet palīdzību.","provideContact":"Norādiet e-pastu vai tālruni.","sending":"Nosūta…","sendError":"Neizdevās nosūtīt pieprasījumu.","requestRecorded":"Jūsu pieprasījums ir reģistrēts.","ref":"Atsauce:","urgentAssistance":"Steidzamai palīdzībai sazinieties ar viesu apkalpošanu.","confirmed":"Paldies. Jūsu apstiprinājums ir reģistrēts.","already":"Jūsu pieprasījums jau nesen saņemts.","bookingPlaceholder":"Ievadiet vienu no numuriem","surnamePlaceholder":"Tikai uzvārds","messagePlaceholder":"Kā varam palīdzēt?"},"et":{"title":"Väljumise teave","subtitle":"Hotellist pealevõtmise ja lennujaamatransfeeri andmed","findTitle":"Leia väljumise andmed","booking":"Broneeringu number või vautšeri number","surname":"Põhireisija perekonnanimi","find":"Leia väljumine","details":"Teie väljumise andmed","detailsSub":"Hotellist pealevõtmise ja lennu andmed","pickup":"Hotellist pealevõtmine","hotel":"Hotell","point":"Pealevõtmise koht","map":"Vaata pealevõtmise kohta kaardil","guest":"Põhireisija","passengers":"Reisijad","flightDetails":"LENNU ANDMED","from":"Lähtekoht","to":"Sihtkoht","flightNo":"Lennunumber","departureTime":"Väljumisaeg","flightDate":"Lennukuupäev","early":"Palun olge pealevõtmise kohas 10 minutit varem.","midnight":"Vahetult pärast südaööd toimuvate lendude kuupäev võib olla hotellist pealevõtmisele järgnev päev. Kontrollige reisidokumente.","flightNotice":"Kontrollige lennukuupäeva reisidokumentidest. Transfeeri andmeid võidakse ajakohastada.","helpToggle":"Vajate abi või ei leia väljumist?","contact":"Võta ühendust klienditeenindusega","urgent":"Kiirete muudatuste korral helistage. Veebipäringud vaadatakse läbi ega muuda ega tühista transfeere automaatselt.","call":"Helista","emailBtn":"E-post","cancelAdvice":"Palume tühistamista taotleda hiljemalt kell 18.00 Kreeka aja järgi päev enne pealevõtmist. Hilisemaid taotlusi võidakse samuti läbi vaadata. Taotlus ei tühista transfeeri automaatselt.","sendTitle":"Saada päring","requestType":"Päringu liik","lookupAssistance":"Otsinguabi","departureQuestion":"Küsimus väljumise kohta","confirmation":"Kinnitus","cancellation":"Tühistamistaotlus","guestName":"Reisija nimi","emailLabel":"E-post (või telefoninumber)","phoneLabel":"Telefon (või e-post)","message":"Teie sõnum","send":"Saada päring","footer":"Kiire abi saamiseks võtke ühendust reisiesindajaga.","adults":"Täiskasvanud","children":"Lapsed","infants":"Imikud","searching":"Otsimine…","found":"Väljumine leitud.","notFound":"Väljumise andmeid ei leitud. Kontrollige broneeringu numbrit ja perekonnanime või küsige abi.","unavailable":"Teenus pole ajutiselt saadaval. Proovige uuesti või küsige abi.","provideContact":"Sisestage e-post või telefon.","sending":"Saadetakse…","sendError":"Päringut ei õnnestunud saata.","requestRecorded":"Teie päring on salvestatud.","ref":"Viide:","urgentAssistance":"Kiire abi saamiseks võtke ühendust klienditeenindusega.","confirmed":"Täname. Teie kinnitus on salvestatud.","already":"Teie päring on juba hiljuti laekunud.","bookingPlaceholder":"Sisestage üks viitenumber","surnamePlaceholder":"Ainult perekonnanimi","messagePlaceholder":"Kuidas saame aidata?"},"ro":{"title":"Informații despre plecare","subtitle":"Detalii despre preluarea de la hotel și transferul la aeroport","findTitle":"Găsește detaliile plecării","booking":"Număr rezervare sau număr voucher","surname":"Numele de familie al titularului","find":"Caută plecarea","details":"Detaliile plecării","detailsSub":"Informații despre preluare și zbor","pickup":"Preluare de la hotel","hotel":"Hotel","point":"Loc de preluare","map":"Vezi locul de preluare pe hartă","guest":"Titular rezervare","passengers":"Pasageri","flightDetails":"DETALII ZBOR","from":"De la","to":"Către","flightNo":"Număr zbor","departureTime":"Ora de plecare","flightDate":"Data zborului","early":"Vă rugăm să fiți la locul de preluare cu 10 minute mai devreme.","midnight":"Pentru zborurile imediat după miezul nopții, data zborului poate fi ziua următoare preluării de la hotel. Verificați documentele de călătorie.","flightNotice":"Verificați data zborului în documentele de călătorie. Detaliile transferului pot fi actualizate.","helpToggle":"Aveți nevoie de ajutor sau nu găsiți plecarea?","contact":"Contactați serviciul de asistență","urgent":"Pentru modificări urgente, sunați. Solicitările online sunt analizate de personal și nu modifică sau anulează automat transferurile.","call":"Sună","emailBtn":"Email","cancelAdvice":"Solicitați anularea până la ora 18:00 (ora Greciei) în ziua anterioară preluării. Solicitările ulterioare pot fi analizate. Trimiterea solicitării nu anulează automat transferul.","sendTitle":"Trimite o solicitare","requestType":"Tip solicitare","lookupAssistance":"Asistență căutare","departureQuestion":"Întrebare despre plecare","confirmation":"Confirmare","cancellation":"Solicitare anulare","guestName":"Numele pasagerului","emailLabel":"Email (sau număr de telefon)","phoneLabel":"Telefon (sau email)","message":"Mesajul dvs.","send":"Trimite solicitarea","footer":"Pentru asistență urgentă, contactați reprezentantul de turism.","adults":"Adulți","children":"Copii","infants":"Sugari","searching":"Se caută…","found":"Plecare găsită.","notFound":"Nu există detalii disponibile pentru această rezervare. Verificați numărul și numele de familie sau solicitați ajutor.","unavailable":"Serviciu temporar indisponibil. Încercați din nou sau solicitați ajutor.","provideContact":"Introduceți emailul sau telefonul.","sending":"Se trimite…","sendError":"Solicitarea nu a putut fi trimisă.","requestRecorded":"Solicitarea dvs. a fost înregistrată.","ref":"Referință:","urgentAssistance":"Pentru asistență urgentă, contactați serviciul de asistență.","confirmed":"Vă mulțumim. Confirmarea a fost înregistrată.","already":"Solicitarea a fost deja primită recent.","bookingPlaceholder":"Introduceți unul dintre numere","surnamePlaceholder":"Doar numele de familie","messagePlaceholder":"Cum vă putem ajuta?"},"ru":{"title":"Информация о выезде","subtitle":"Информация о трансфере из отеля в аэропорт","findTitle":"Найти информацию о выезде","booking":"Номер бронирования или номер ваучера","surname":"Фамилия основного пассажира","find":"Найти выезд","details":"Информация о вашем выезде","detailsSub":"Информация о трансфере и рейсе","pickup":"Выезд из отеля","hotel":"Отель","point":"Место посадки","map":"Посмотреть место посадки на карте","guest":"Основной пассажир","passengers":"Пассажиры","flightDetails":"ИНФОРМАЦИЯ О РЕЙСЕ","from":"Откуда","to":"Куда","flightNo":"Номер рейса","departureTime":"Время вылета","flightDate":"Дата рейса","early":"Пожалуйста, будьте на месте посадки за 10 минут.","midnight":"Для рейсов вскоре после полуночи дата вылета может быть на следующий день после трансфера из отеля. Проверьте проездные документы.","flightNotice":"Сверяйте дату рейса с проездными документами. Данные трансфера могут обновляться.","helpToggle":"Нужна помощь или не можете найти выезд?","contact":"Связаться со службой поддержки","urgent":"Для срочных изменений позвоните. Онлайн-запросы обрабатываются сотрудниками и не изменяют или отменяют трансфер автоматически.","call":"Позвонить","emailBtn":"Эл. почта","cancelAdvice":"Просим отправить запрос на отмену до 18:00 по времени Греции за день до трансфера. Более поздние запросы также могут быть рассмотрены. Запрос не отменяет трансфер автоматически.","sendTitle":"Отправить запрос","requestType":"Тип запроса","lookupAssistance":"Помощь с поиском","departureQuestion":"Вопрос о выезде","confirmation":"Подтверждение","cancellation":"Запрос на отмену","guestName":"Имя гостя","emailLabel":"Эл. почта (или телефон)","phoneLabel":"Телефон (или эл. почта)","message":"Ваше сообщение","send":"Отправить запрос","footer":"Для срочной помощи свяжитесь с представителем туроператора.","adults":"Взрослые","children":"Дети","infants":"Младенцы","searching":"Поиск…","found":"Выезд найден.","notFound":"Информация о выезде не найдена. Проверьте номер бронирования и фамилию или обратитесь за помощью.","unavailable":"Сервис временно недоступен. Повторите попытку или обратитесь за помощью.","provideContact":"Укажите адрес эл. почты или телефон.","sending":"Отправка…","sendError":"Не удалось отправить запрос.","requestRecorded":"Ваш запрос зарегистрирован.","ref":"Номер обращения:","urgentAssistance":"Для срочной помощи свяжитесь со службой поддержки.","confirmed":"Спасибо. Ваше подтверждение зарегистрировано.","already":"Ваш запрос уже недавно получен.","bookingPlaceholder":"Укажите один из номеров","surnamePlaceholder":"Только фамилия","messagePlaceholder":"Чем мы можем помочь?"},"uk":{"title":"Інформація про виїзд","subtitle":"Інформація про трансфер з готелю до аеропорту","findTitle":"Знайти інформацію про виїзд","booking":"Номер бронювання або номер ваучера","surname":"Прізвище основного пасажира","find":"Знайти виїзд","details":"Деталі вашого виїзду","detailsSub":"Інформація про трансфер і рейс","pickup":"Трансфер із готелю","hotel":"Готель","point":"Місце посадки","map":"Переглянути місце посадки на карті","guest":"Основний пасажир","passengers":"Пасажири","flightDetails":"ІНФОРМАЦІЯ ПРО РЕЙС","from":"Звідки","to":"Куди","flightNo":"Номер рейсу","departureTime":"Час вильоту","flightDate":"Дата рейсу","early":"Будь ласка, прибудьте до місця посадки за 10 хвилин.","midnight":"Для рейсів невдовзі після опівночі дата вильоту може бути наступного дня після трансферу з готелю. Перевірте проїзні документи.","flightNotice":"Звіряйте дату рейсу з проїзними документами. Дані трансферу можуть оновлюватися.","helpToggle":"Потрібна допомога або не можете знайти виїзд?","contact":"Зв’язатися зі службою підтримки","urgent":"Для термінових змін телефонуйте. Онлайн-запити розглядають працівники; вони не змінюють і не скасовують трансфер автоматично.","call":"Зателефонувати","emailBtn":"Ел. пошта","cancelAdvice":"Просимо надіслати запит на скасування до 18:00 за грецьким часом за день до трансферу. Пізніші запити також можуть бути розглянуті. Запит не скасовує трансфер автоматично.","sendTitle":"Надіслати запит","requestType":"Тип запиту","lookupAssistance":"Допомога з пошуком","departureQuestion":"Питання про виїзд","confirmation":"Підтвердження","cancellation":"Запит на скасування","guestName":"Ім’я гостя","emailLabel":"Ел. пошта (або телефон)","phoneLabel":"Телефон (або ел. пошта)","message":"Ваше повідомлення","send":"Надіслати запит","footer":"Для термінової допомоги зверніться до служби підтримки.","adults":"Дорослі","children":"Діти","infants":"Немовлята","searching":"Пошук…","found":"Виїзд знайдено.","notFound":"Інформацію про виїзд не знайдено. Перевірте номер бронювання та прізвище або зверніться по допомогу.","unavailable":"Сервіс тимчасово недоступний. Спробуйте знову або зверніться по допомогу.","provideContact":"Вкажіть ел. пошту або телефон.","sending":"Надсилання…","sendError":"Не вдалося надіслати запит.","requestRecorded":"Ваш запит зареєстровано.","ref":"Номер звернення:","urgentAssistance":"Для термінової допомоги зверніться до служби підтримки.","confirmed":"Дякуємо. Ваше підтвердження зареєстровано.","already":"Ваш запит уже нещодавно отримано.","bookingPlaceholder":"Введіть один із номерів","surnamePlaceholder":"Лише прізвище","messagePlaceholder":"Як ми можемо допомогти?"},"de":{"title":"Abreiseinformationen","subtitle":"Informationen zur Abholung am Hotel und zum Flughafentransfer","findTitle":"Abreise finden","booking":"Buchungsnummer oder Vouchernummer","surname":"Nachname des Hauptreisenden","find":"Abreise suchen","details":"Ihre Abreisedaten","detailsSub":"Hotelabholung und Fluginformationen","pickup":"Abholung am Hotel","hotel":"Hotel","point":"Abholort","map":"Abholort auf Karte anzeigen","guest":"Hauptreisender","passengers":"Reisende","flightDetails":"FLUGDATEN","from":"Von","to":"Nach","flightNo":"Flugnummer","departureTime":"Abflugzeit","flightDate":"Flugdatum","early":"Bitte seien Sie 10 Minuten vor der Abholung am Treffpunkt.","midnight":"Bei Flügen kurz nach Mitternacht kann das Flugdatum auf den Tag nach der Hotelabholung fallen. Bitte prüfen Sie Ihre Reiseunterlagen.","flightNotice":"Bitte gleichen Sie das Flugdatum mit Ihren Reiseunterlagen ab. Transferdetails können aktualisiert werden.","helpToggle":"Benötigen Sie Hilfe oder finden Ihre Abreise nicht?","contact":"Gästebetreuung kontaktieren","urgent":"Bei dringenden Änderungen rufen Sie bitte an. Online-Anfragen werden geprüft und ändern oder stornieren Transfers nicht automatisch.","call":"Anrufen","emailBtn":"E-Mail","cancelAdvice":"Bitte beantragen Sie eine Stornierung bis 18:00 Uhr griechischer Zeit am Vortag der Abholung. Spätere Anfragen können ebenfalls geprüft werden. Die Anfrage storniert den Transfer nicht automatisch.","sendTitle":"Anfrage senden","requestType":"Art der Anfrage","lookupAssistance":"Hilfe bei der Suche","departureQuestion":"Frage zur Abreise","confirmation":"Bestätigung","cancellation":"Stornierungsanfrage","guestName":"Name des Gastes","emailLabel":"E-Mail (oder Telefonnummer)","phoneLabel":"Telefon (oder E-Mail)","message":"Ihre Nachricht","send":"Anfrage absenden","footer":"Bei dringenden Anliegen wenden Sie sich an Ihre Reisevertretung.","adults":"Erwachsene","children":"Kinder","infants":"Kleinkinder","searching":"Suche läuft…","found":"Abreise gefunden.","notFound":"Keine Abreise gefunden. Prüfen Sie Buchungsnummer und Nachnamen oder kontaktieren Sie uns.","unavailable":"Dienst vorübergehend nicht verfügbar. Bitte erneut versuchen oder Hilfe anfordern.","provideContact":"Bitte E-Mail oder Telefonnummer angeben.","sending":"Wird gesendet…","sendError":"Anfrage konnte nicht gesendet werden.","requestRecorded":"Ihre Anfrage wurde erfasst.","ref":"Referenz:","urgentAssistance":"Bei dringenden Anliegen kontaktieren Sie die Gästebetreuung.","confirmed":"Vielen Dank. Ihre Bestätigung wurde erfasst.","already":"Ihre Anfrage wurde bereits vor Kurzem empfangen.","bookingPlaceholder":"Eine der Referenzen eingeben","surnamePlaceholder":"Nur Nachname","messagePlaceholder":"Wie können wir helfen?"}};
+const byId=id=>document.getElementById(id),put=(id,v)=>{byId(id).textContent=v||'—'};
+let lastDeparture=null;
+let currentLang='en',manualLanguage=false,feedbackKey='',helpFeedbackKey='';
+const t=(k)=> (I18N[currentLang]&&I18N[currentLang][k])||I18N.en[k]||k;
+function setLanguage(lang,manual=false){
+  if(!I18N[lang])lang='en';
+  currentLang=lang;if(manual)manualLanguage=true;
+  document.documentElement.lang=lang;
+  byId('languageSelect').value=lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n);});
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{el.placeholder=t(el.dataset.i18nPlaceholder);});
+  if(lastDeparture){
+    byId('dBreakdown').textContent=`${t('adults')}: ${lastDeparture.adults||'0'} · ${t('children')}: ${lastDeparture.children||'0'} · ${t('infants')}: ${lastDeparture.infants||'0'}`;
+    const from=String(lastDeparture.departureAirport||'').trim();
+    byId('flightOneAirportLabel').textContent=t(from?'from':'to');
+  }
+  if(feedbackKey)byId('feedback').textContent=t(feedbackKey);
+  if(helpFeedbackKey)byId('helpFeedback').textContent=t(helpFeedbackKey);
+}
+byId('languageSelect').addEventListener('change',e=>setLanguage(e.target.value,true));
+function setFeedback(key){feedbackKey=key;byId('feedback').textContent=t(key);}
+function setHelpFeedback(key){helpFeedbackKey=key;byId('helpFeedback').textContent=t(key);}
+function requestFeedback(r,type){
+  if(!r||!r.ok)return t('sendError');
+  if(r.message==='Your request was already received recently.')return t('already');
+  if(type==='Confirmation')return t('confirmed');
+  return t('requestRecorded')+(r.requestId?' '+t('ref')+' '+r.requestId+'.':'')+' '+t('urgentAssistance');
+}
+
+const DEFAULT_CONTACTS = Object.freeze({
+  phone: '+302810301700',
+  email: 'guestservice@teztour.gr',
+  whatsApp: '+306936002317'
+});
+function setContacts(c){
+  c=c||{};
+  const phone=String(c.phone||'').trim(), mail=String(c.email||'').trim(), wa=String(c.whatsApp||'').replace(/\D/g,'');
+  const dial=phone.replace(/[^+\d]/g,'');
+  const items=[['phoneLink',Boolean(dial),dial?'tel:'+dial:''],['emailLink',Boolean(mail),mail?'mailto:'+mail:''],['whatsappLink',wa.length>=7,wa?'https://wa.me/'+wa:'']];
+  items.forEach(([id,visible,href])=>{const el=byId(id);el.classList.toggle('hide',!visible);if(visible)el.href=href;else el.removeAttribute('href');});
+  byId('contactLinks').classList.toggle('hide',!items.some(x=>x[1]));
+}
+function updateRequestNotice(){
+  byId('cancelAdvice').classList.toggle('hide',byId('type').value!=='Cancellation Request');
+}
+byId('type').addEventListener('change',updateRequestNotice);
+let lookupInProgress=false;
+byId('helpToggle').setAttribute('aria-expanded','false');
+byId('helpToggle').onclick=()=>{
+  const opening=byId('helpBlock').classList.contains('hide');
+  byId('helpBlock').classList.toggle('hide',!opening);
+  byId('helpToggle').setAttribute('aria-expanded',String(opening));
+};
+
+// =========================================================================
+// API REPLACEMENT: Guest Lookup via FETCH (No google.script.run)
+// =========================================================================
+byId('lookup').addEventListener('submit', e => {
+  e.preventDefault();
+  byId('details').classList.add('hide');
+  lastDeparture = null;
+  lookupInProgress = true;
+  setContacts(DEFAULT_CONTACTS);
+  byId('helpName').value = '';
+  byId('helpRef').value = byId('booking').value.trim();
+  feedbackKey = '';
+  byId('type').value = 'Lookup Assistance';
+  updateRequestNotice();
+  setFeedback('searching');
+  byId('find').disabled = true;
+
+  const url = `${API_URL}?action=lookup&booking=${encodeURIComponent(byId('booking').value)}&surname=${encodeURIComponent(byId('surname').value)}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(r => {
+      lookupInProgress = false;
+      byId('find').disabled = false;
+      if (!r || !r.found) {
+        setContacts(DEFAULT_CONTACTS);
+        setFeedback('notFound');
+        return;
+      }
+      setFeedback('found');
+      const d = r.departure;
+      lastDeparture = d;
+      if (!manualLanguage) setLanguage(String(d.defaultLanguage || 'en').toLowerCase());
+      setContacts(d.contact);
+      byId('type').value = 'Departure Question';
+      updateRequestNotice();
+      put('dDate', d.transferDate);
+      put('dPickup', d.pickupTime);
+      put('dHotel', d.hotelName);
+      put('dPoint', d.pickupPoint);
+      put('dFlight', d.flightNo);
+      put('dFlightTime', d.flightTime);
+      put('dFlightDate', d.flightDate);
+      
+      const from = String(d.departureAirport || '').trim(), to = String(d.destinationAirport || '').trim();
+      const both = Boolean(from && to), single = Boolean(from || to) && !both;
+      byId('flightBothAirports').classList.toggle('hide', !both);
+      byId('flightOneAirport').classList.toggle('hide', !single);
+      if (both) { put('flightFrom', from); put('flightTo', to); }
+      if (single) { put('flightOneAirportCode', from || to); byId('flightOneAirportLabel').textContent = from ? t('from') : t('to'); }
+      
+      byId('flightFacts').classList.toggle('two', !d.flightDate);
+      byId('brandName').textContent = d.brandName || '';
+      byId('brandName').classList.toggle('hide', !d.brandName || !!d.logoURL);
+      
+      const logo = byId('customerLogo');
+      logo.classList.add('hide');
+      logo.removeAttribute('src');
+      if (d.logoURL) {
+        logo.onload = () => { logo.classList.remove('hide'); byId('brandName').classList.add('hide'); };
+        logo.onerror = () => { logo.classList.add('hide'); byId('brandName').classList.toggle('hide', !d.brandName); };
+        logo.src = d.logoURL;
+      }
+      
+      byId('flightDateWrap').classList.toggle('hide', !d.flightDate);
+      put('dName', d.leadGuestName);
+      put('dBooking', d.bookingID);
+      put('dPax', d.pax);
+      put('dBreakdown', `${t('adults')}: ${d.adults || '0'} · ${t('children')}: ${d.children || '0'} · ${t('infants')}: ${d.infants || '0'}`);
+      
+      byId('mapWrap').classList.toggle('hide', !d.pickupPointURL);
+      if (d.pickupPointURL) byId('mapLink').href = d.pickupPointURL;
+      
+      byId('helpName').value = d.leadGuestName;
+      byId('helpRef').value = d.bookingID;
+      byId('details').classList.remove('hide');
+    })
+    .catch(() => {
+      lookupInProgress = false;
+      byId('find').disabled = false;
+      setFeedback('unavailable');
+      setContacts(DEFAULT_CONTACTS);
+    });
+});
+
+// =========================================================================
+// API REPLACEMENT: Help Request Submission via FETCH (No google.script.run)
+// =========================================================================
+byId('help').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!byId('email').value.trim() && !byId('phone').value.trim()) {
+    setHelpFeedback('provideContact');
+    return;
+  }
+  
+  byId('send').disabled = true;
+  setHelpFeedback('sending');
+  
+  const data = {
+    type: byId('type').value,
+    name: byId('helpName').value,
+    reference: byId('helpRef').value,
+    email: byId('email').value,
+    phone: byId('phone').value,
+    message: byId('msg').value
+  };
+
+  fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(r => {
+    byId('send').disabled = false;
+    helpFeedbackKey = '';
+    byId('helpFeedback').textContent = requestFeedback(r, data.type);
+    if (r && r.ok) { byId('msg').value = ''; }
+  })
+  .catch(err => {
+    byId('send').disabled = false;
+    setHelpFeedback('sendError');
+  });
+});
+
+setLanguage('en');
+setContacts(DEFAULT_CONTACTS);
+</script></body></html>
